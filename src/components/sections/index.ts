@@ -1,0 +1,9 @@
+export { VideoInfoSection } from './VideoInfoSection';
+export { MetadataSection } from './MetadataSection';
+export { TranscriptSection } from './TranscriptSection';
+export { ScriptStepsSection } from './ScriptStepsSection';
+export { FinalScriptSection } from './FinalScriptSection';
+export { ImagePlanSection } from './ImagePlanSection';
+export { GeneratedImagesSection } from './GeneratedImagesSection';
+export { ThumbnailSection } from './ThumbnailSection';
+export { AnnotatedTranscriptSection } from './AnnotatedTranscriptSection';
