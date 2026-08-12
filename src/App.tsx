@@ -476,7 +476,7 @@ const App: React.FC = () => {
                 <Stepper
                   label="Min Script Words"
                   value={minScriptWordCount}
-                  min={100}
+                  min={10}
                   max={10000}
                   fallback={10}
                   step={100}
