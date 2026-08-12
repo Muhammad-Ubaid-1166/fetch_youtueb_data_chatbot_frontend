@@ -1,1 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: rgba(124, 58, 237, 0.22);
+  color: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #94a3b8, #7c3aed);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #7c8aa5, #6d28d9);
+}
+
+@keyframes blob-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(35px, -45px) scale(1.12);
+  }
+  66% {
+    transform: translate(-30px, 30px) scale(0.94);
+  }
+}
+
+.animate-blob {
+  animation: blob-float 18s ease-in-out infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}

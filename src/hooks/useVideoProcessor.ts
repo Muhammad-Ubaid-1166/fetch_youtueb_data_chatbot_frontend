@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { fetchVideoData, healthCheck } from '../api/client';
 import type { YouTubeURLRequest, VideoDataResponse } from '../api/types';
 import { validateYouTubeUrl } from '../utils/validators';
-import { DEFAULT_MIN_SCRIPT_WORD_COUNT, DEFAULT_IMAGE_COUNT } from '../utils/constants';
+import { DEFAULT_MIN_SCRIPT_WORD_COUNT, DEFAULT_IMAGE_COUNT, LOCAL_STORAGE_KEYS } from '../utils/constants';
 
 interface UseVideoProcessorReturn {
   url: string;
@@ -16,22 +16,65 @@ interface UseVideoProcessorReturn {
   result: VideoDataResponse | null;
   isLoading: boolean;
   error: string | null;
-  processVideo: () => Promise<void>;
+  processVideo: (urlOverride?: string) => Promise<void>;
   clearResult: () => void;
   checkServerHealth: () => Promise<boolean>;
 }
 
+const readStored = <T,>(key: string, fallback: T): T => {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw === null) return fallback;
+    return JSON.parse(raw) as T;
+  } catch {
+    return fallback;
+  }
+};
+
 export const useVideoProcessor = (): UseVideoProcessorReturn => {
-  const [url, setUrl] = useState('');
-  const [language, setLanguage] = useState('English');
-  const [minScriptWordCount, setMinScriptWordCount] = useState(DEFAULT_MIN_SCRIPT_WORD_COUNT);
-  const [defaultImageCount, setDefaultImageCount] = useState(DEFAULT_IMAGE_COUNT);
+  const [url, setUrl] = useState(() => readStored<string>(LOCAL_STORAGE_KEYS.LAST_URL, ''));
+  const [language, setLanguage] = useState(() => readStored<string>(LOCAL_STORAGE_KEYS.LANGUAGE, 'English'));
+  const [minScriptWordCount, setMinScriptWordCount] = useState(() =>
+    readStored<number>(LOCAL_STORAGE_KEYS.MIN_SCRIPT_WORDS, DEFAULT_MIN_SCRIPT_WORD_COUNT)
+  );
+  const [defaultImageCount, setDefaultImageCount] = useState(() =>
+    readStored<number>(LOCAL_STORAGE_KEYS.DEFAULT_IMAGES, DEFAULT_IMAGE_COUNT)
+  );
   const [result, setResult] = useState<VideoDataResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const processVideo = useCallback(async () => {
-    const validation = validateYouTubeUrl(url);
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEYS.LAST_URL, JSON.stringify(url));
+    } catch { /* storage unavailable — ignore */ }
+  }, [url]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEYS.LANGUAGE, JSON.stringify(language));
+    } catch { /* storage unavailable — ignore */ }
+  }, [language]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEYS.MIN_SCRIPT_WORDS, JSON.stringify(minScriptWordCount));
+    } catch { /* storage unavailable — ignore */ }
+  }, [minScriptWordCount]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEYS.DEFAULT_IMAGES, JSON.stringify(defaultImageCount));
+    } catch { /* storage unavailable — ignore */ }
+  }, [defaultImageCount]);
+
+  const processVideo = useCallback(async (urlOverride?: string) => {
+    const effectiveUrl = (urlOverride ?? url).trim();
+    if (urlOverride !== undefined && effectiveUrl !== url) {
+      setUrl(effectiveUrl);
+    }
+
+    const validation = validateYouTubeUrl(effectiveUrl);
     if (!validation.valid) {
       setError(validation.error || 'Invalid URL');
       return;
@@ -42,7 +85,7 @@ export const useVideoProcessor = (): UseVideoProcessorReturn => {
 
     try {
       const request: YouTubeURLRequest = {
-        url: url.trim(),
+        url: effectiveUrl,
         language,
         min_script_word_count: minScriptWordCount,
         default_image_count: defaultImageCount,

@@ -44,8 +44,10 @@ export const LANGUAGES = [
 
 export type Language = (typeof LANGUAGES)[number];
 
-export const DEFAULT_MIN_SCRIPT_WORD_COUNT = 2500;
-export const DEFAULT_IMAGE_COUNT = 15;
+export const DEFAULT_MIN_SCRIPT_WORD_COUNT = 10;
+export const DEFAULT_IMAGE_COUNT = 1;
+
+export const QUICK_PREVIEW_URL = 'https://www.youtube.com/watch?v=vekmDxgPey8';
 
 export const LOCAL_STORAGE_KEYS = {
   LANGUAGE: 'youtube_processor_language',

@@ -1,7 +1,25 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import type { YouTubeURLRequest, VideoDataResponse, ApiError } from './types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const RAW_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '';
+
+const resolveApiBaseUrl = (): string => {
+  const candidates = [RAW_API_BASE_URL, 'http://localhost:8000'];
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+    try {
+      const parsed = new URL(candidate);
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+        return parsed.toString().replace(/\/+$/, '');
+      }
+    } catch {
+      console.warn(`[API] Invalid API base URL ignored: "${candidate}"`);
+    }
+  }
+  return 'http://localhost:8000';
+};
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
